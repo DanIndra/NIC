@@ -60,7 +60,7 @@ void CanBrake::setup() {
 		requestFrame.id = 0x760;
 		memcpy(requestFrame.data.bytes, (const uint8_t[]){ 0x03, 0x22, 0x2B, 0x0D, 0x00, 0x00, 0x00, 0x00 }, 8);
 		responseId = 0x768;
-		break;
+    break;
 	case Volvo_V50_Diesel:
 		// Request: dlc=0x08 fid=0xFFFFE id=0x3FFFE ide=0x01 rtr=0x00 data=0xCD,0x11,0xA6,0x00,0x24,0x01,0x00,0x00 ([0x00, 0xf, 0xff, 0xfe, 0xcd, 0x11, 0xa6, 0x00, 0x24, 0x01, 0x00, 0x00])
 		// Response: dlc=0x08 fid=0x400021 id=0x21 ide=0x01 rtr=0x00 data=0xCE,0x11,0xE6,0x00,0x24,0x03,0xFD,0x00 (vida: [0x00, 0x40, 0x00, 0x21, 0xce, 0x11, 0xe6, 0x00, 0x24, 0x03, 0xfd, 0x00])
@@ -70,6 +70,14 @@ void CanBrake::setup() {
 //		responseId = 0x21;
 //		responseExtended = true;
 		break;
+	case Nissan_Leaf:
+	  // The comment below is not acurate as in, it does not have all the CAN id's
+		//Request: dlc=0x08 fid= id= ide= rtr=0x00 data= ()
+		requestFrame.id = "SOMETHING;
+		requestFrame.ide = "SOMETHING";
+		memcpy(requestFrame.data, (uint8_t[]){"FILL WITH CAN DATA MESSAGES"}, 8);
+		responseId = "SOMETHING";
+		responseExtended = true;
 	default:
 		Logger::error(CANBRAKEPEDAL, "no valid car type defined.");
 	}
@@ -104,8 +112,10 @@ void CanBrake::handleCanFrame(CAN_FRAME *frame) {
 				rawSignal.input1 = frame->data.bytes[5];
 				break;
 			case Volvo_V50_Diesel:
-//				rawSignal.input1 = (frame->data.bytes[5] + 1) * frame->data.bytes[6];
+//			rawSignal.input1 = (frame->data.bytes[5] + 1) * frame->data.bytes[6];
 				break;
+			case Nissan_Leaf:
+			  rawSignal.input1 = (frame->data.bytes[5] + 1) * frame->data.bytes[6];
 		}
 		ticksNoResponse = 0;
 	}
@@ -205,7 +215,7 @@ void CanBrake::loadConfiguration() {
 		Logger::warn(CANBRAKEPEDAL, (char *)Constants::invalidChecksum);
 		config->minimumLevel1 = 2;
 		config->maximumLevel1 = 255;
-		config->carType = Volvo_S80_Gas;
+		config->carType = Nissan_Leaf;
 		saveConfiguration();
 	}
 	Logger::debug(CANBRAKEPEDAL, "T1 MIN: %l MAX: %l Type: %d", config->minimumLevel1, config->maximumLevel1, config->carType);
@@ -224,5 +234,3 @@ void CanBrake::saveConfiguration() {
 	prefsHandler->write(EETH_CAR_TYPE, config->carType);
 	prefsHandler->saveChecksum();
 }
-
-

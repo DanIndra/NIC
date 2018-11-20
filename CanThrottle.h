@@ -74,5 +74,3 @@ private:
 };
 
 #endif /* CAN_THROTTLE_H_ */
-
-

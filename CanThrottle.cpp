@@ -37,6 +37,7 @@ CanThrottle::CanThrottle() : Throttle() {
 	responseExtended = false;
 
 	commonName = "CANBus accelerator";
+
 }
 
 void CanThrottle::setup() {
@@ -69,6 +70,12 @@ void CanThrottle::setup() {
 		responseId = 0x21;
 		responseExtended = true;
 		break;
+	case Nissan_Leaf:
+	  requestFrame.id = "SOMETHING";
+		requestFrame.extended = "SOMETHING";
+		memcpy(requestFrame.data.bytes, (uint8_t[]){ "SOMETHING"}, 8);
+		responseId = "SOMETHING";
+		responseExtended = true;
 	default:
 		Logger::error(CANACCELPEDAL, "no valid car type defined.");
 	}
@@ -176,7 +183,7 @@ void CanThrottle::loadConfiguration() {
 		Logger::warn(CANACCELPEDAL, (char *)Constants::invalidChecksum);
 		config->minimumLevel1 = Throttle1MinValue;
 		config->maximumLevel1 = Throttle1MaxValue;
-		config->carType = Volvo_S80_Gas;
+		config->carType = Nissan_Leaf;
 		saveConfiguration();
 	}
 	Logger::debug(CANACCELPEDAL, "T1 MIN: %l MAX: %l Type: %d", config->minimumLevel1, config->maximumLevel1, config->carType);
@@ -195,5 +202,3 @@ void CanThrottle::saveConfiguration() {
 	prefsHandler->write(EETH_CAR_TYPE, config->carType);
 	prefsHandler->saveChecksum();
 }
-
-
